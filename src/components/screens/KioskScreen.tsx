@@ -235,20 +235,22 @@ export const KioskScreen: React.FC<KioskScreenProps> = () => {
                 </button>
               )}
             </div>
-
-            {/* Search */}
-            <SearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onClear={() => setSearchQuery('')}
-              onTap={handleTap}
-              resultCount={filteredLocations.length}
-            />
           </div>
 
           {/* Scrollable grid */}
           <div className="flex-1 overflow-y-auto px-6 py-5"
             style={{ scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.1) transparent' }}>
+
+            {/* Search */}
+            <div className="mb-6">
+              <SearchBar
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onClear={() => setSearchQuery('')}
+                onTap={handleTap}
+                resultCount={filteredLocations.length}
+              />
+            </div>
 
             {filteredLocations.length === 0 ? (
               /* Empty state */
