@@ -38,27 +38,43 @@ import type { AppScreen } from './types';
 
 export default function App() {
   const [screen, setScreen] = useState<AppScreen>('splash');
+  const [autoStartVoice, setAutoStartVoice] = useState(false);
   const { playTap } = useSoundEffects();
 
   const handleEnterKiosk = useCallback(() => {
     playTap();
+    setAutoStartVoice(false);
+    setScreen('kiosk');
+  }, [playTap]);
+
+  const handleEnterKioskWithVoice = useCallback(() => {
+    playTap();
+    setAutoStartVoice(true);
     setScreen('kiosk');
   }, [playTap]);
 
   const handleReturnToSplash = useCallback(() => {
+    setAutoStartVoice(false);
     setScreen('splash');
   }, []);
 
   // Idle timer — only active on the kiosk screen
-  useIdleTimer(handleReturnToSplash, 60_000, screen === 'kiosk');
+  const { resetTimer } = useIdleTimer(handleReturnToSplash, 60_000, screen === 'kiosk');
 
   return (
     <div className="min-h-screen bg-slate-950 text-white antialiased">
       {screen === 'splash' && (
-        <SplashScreen onEnter={handleEnterKiosk} />
+        <SplashScreen
+          onEnter={handleEnterKiosk}
+          onEnterWithVoice={handleEnterKioskWithVoice}
+        />
       )}
       {screen === 'kiosk' && (
-        <KioskScreen onIdle={handleReturnToSplash} />
+        <KioskScreen 
+          onIdle={handleReturnToSplash} 
+          autoStartVoice={autoStartVoice}
+          onResetIdleTimer={resetTimer} 
+        />
       )}
     </div>
   );

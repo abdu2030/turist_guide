@@ -1,9 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Mic, TouchpadOff } from 'lucide-react';
+import { useSpeechRecognition } from '../../hooks/useSpeechRecognition';
 import { cn } from '../../utils/cn';
 
 interface SplashScreenProps {
   onEnter: () => void;
+  onEnterWithVoice: () => void;
 }
 
 const ROTATING_TEXTS = [
@@ -14,12 +16,33 @@ const ROTATING_TEXTS = [
   'Plan your perfect day',
 ];
 
-export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
+export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter, onEnterWithVoice }) => {
   const [textIndex, setTextIndex] = useState(0);
   const [visible, setVisible] = useState(true);
   const [pulseRing, setPulseRing] = useState(false);
   const [currentTime, setCurrentTime] = useState('');
   const [currentDate, setCurrentDate] = useState('');
+
+  // ── Wake Word Recognition ───────────────────────────────────────────────
+  const handleWakeWord = useCallback((transcript: string, isFinal: boolean) => {
+    if (!isFinal) return;
+    const t = transcript.toLowerCase();
+    // Wake words: "speak to search", "help", "nova", "explore"
+    if (/\b(speak to search|help|nova|explore)\b/.test(t)) {
+      onEnterWithVoice();
+    }
+  }, [onEnterWithVoice]);
+
+  const { start, stop } = useSpeechRecognition({
+    continuous: true,
+    interimResults: false,
+    onTranscript: handleWakeWord,
+  });
+
+  useEffect(() => {
+    start();
+    return () => stop();
+  }, [start, stop]);
 
   // Rotate subtitle text
   useEffect(() => {
@@ -165,10 +188,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
           </p>
         </div>
 
-        {/* CTA section */}
-        <div className="flex flex-col items-center gap-6 mt-4">
+        {/* CTA section — side by side */}
+        <div className="flex items-center gap-6 mt-4">
+
           {/* Touch to Start */}
-          <div className="relative flex flex-col items-center gap-4">
+          <div className="relative flex flex-col items-center gap-3">
             {/* Outer pulse rings */}
             {pulseRing && (
               <>
@@ -193,31 +217,43 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({ onEnter }) => {
                 </span>
               </div>
             </div>
+
+            <p className="text-white/50 text-sm font-medium">Touch to explore</p>
           </div>
 
-          <p className="text-white/50 text-base font-medium">
-            Touch anywhere to start exploring
-          </p>
-
-          {/* Divider */}
-          <div className="flex items-center gap-4 w-72">
-            <div className="flex-1 h-px bg-white/15" />
+          {/* Vertical divider */}
+          <div className="flex flex-col items-center gap-2 self-stretch justify-center">
+            <div className="flex-1 w-px bg-white/15" />
             <span className="text-white/30 text-sm font-medium">or</span>
-            <div className="flex-1 h-px bg-white/15" />
+            <div className="flex-1 w-px bg-white/15" />
           </div>
 
           {/* Voice shortcut */}
-          <div className="flex items-center gap-3 px-6 py-4 rounded-2xl
-            bg-white/8 border border-white/15 backdrop-blur-sm">
-            <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-400/30
-              flex items-center justify-center">
-              <Mic size={20} className="text-red-400" />
+          <div className="flex flex-col items-center gap-3">
+            <div
+              className="flex items-center gap-3 px-6 py-4 rounded-2xl
+                bg-white/8 border border-white/15 backdrop-blur-sm
+                cursor-pointer hover:bg-white/15 hover:border-white/25 transition-all duration-200
+                active:scale-95"
+              onClick={(e) => {
+                e.stopPropagation();
+                onEnterWithVoice();
+              }}
+              role="button"
+              aria-label="Enter kiosk with voice search active"
+            >
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 border border-red-400/30
+                flex items-center justify-center">
+                <Mic size={20} className="text-red-400" />
+              </div>
+              <div className="text-left">
+                <p className="text-white font-semibold text-sm">Speak to Search</p>
+                <p className="text-white/40 text-xs">Say "Speak to search" to activate</p>
+              </div>
             </div>
-            <div className="text-left">
-              <p className="text-white font-semibold text-sm">Speak to Search</p>
-              <p className="text-white/40 text-xs">Voice commands available after start</p>
-            </div>
+            <p className="text-white/50 text-sm font-medium">Say a command</p>
           </div>
+
         </div>
       </div>
 
