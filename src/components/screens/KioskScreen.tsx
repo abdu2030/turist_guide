@@ -99,6 +99,7 @@ export const KioskScreen: React.FC<KioskScreenProps> = ({
   const [voiceMessage, setVoiceMessage] = useState('');
   const [showVoicePanel, setShowVoicePanel] = useState(true);
   const [currentTime, setCurrentTime] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [savedLocationIds, setSavedLocationIds] = useState<string[]>(() => {
     try {
       const saved = localStorage.getItem('saved_locations');
@@ -428,19 +429,44 @@ export const KioskScreen: React.FC<KioskScreenProps> = ({
   const activeMeta = CATEGORY_META[activeCategory];
 
   return (
-    <div className="flex flex-col h-screen bg-slate-950 overflow-hidden">
-      <TopBar currentTime={currentTime} city="Nova Crest" />
+    <div className="flex flex-col h-screen bg-slate-950 overflow-hidden text-base">
+      <TopBar 
+        currentTime={currentTime} 
+        city="Nova Crest" 
+        isMenuOpen={isMobileMenuOpen}
+        onToggleMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+      />
 
-      <div className="flex flex-1 overflow-hidden">
-        <CategorySidebar activeCategory={activeCategory} onSelect={setActiveCategory} onTap={handleTap} />
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Overlay for mobile when sidebar is open */}
+        {isMobileMenuOpen && (
+          <div 
+            className="absolute inset-0 bg-black/50 z-20 md:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+        
+        <CategorySidebar 
+          activeCategory={activeCategory} 
+          onSelect={(cat) => {
+            setActiveCategory(cat);
+            setIsMobileMenuOpen(false);
+          }} 
+          onTap={handleTap} 
+          className={cn(
+            "absolute top-0 left-0 h-full md:static md:h-auto z-30 transition-transform duration-300",
+            isMobileMenuOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+          )}
+        />
 
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="px-6 pt-5 pb-4 space-y-4 bg-slate-950/80 border-b border-white/5">
+        <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
+          <div className="px-4 md:px-6 pt-4 pb-3 md:pt-5 md:pb-4 space-y-4 bg-slate-950/80 border-b border-white/5">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <span className="text-3xl">{activeMeta.icon}</span>
-                <div>
-                  <h2 className="text-white font-black text-2xl leading-none">
+              <div className="flex items-center gap-2 md:gap-3 min-w-0">
+                <span className="text-3xl shrink-0">{activeMeta.icon}</span>
+                <div className="min-w-0">
+                  <h2 className="text-white font-black text-2xl leading-none truncate">
                     {activeCategory === 'All' ? 'Explore Nova Crest' : activeCategory}
                   </h2>
                   <p className="text-white/40 text-sm mt-0.5">
@@ -490,7 +516,7 @@ export const KioskScreen: React.FC<KioskScreenProps> = ({
                       <span className="text-amber-400 text-lg">⭐</span>
                       <h3 className="text-white/70 text-sm font-bold uppercase tracking-widest">Featured</h3>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                       {featuredLocations.map(loc => (
                         <LocationCard key={loc.id} location={loc} onSelect={setSelectedLocation} onTap={handleTap} featured />
                       ))}
@@ -506,7 +532,7 @@ export const KioskScreen: React.FC<KioskScreenProps> = ({
                         <h3 className="text-white/70 text-sm font-bold uppercase tracking-widest">All Locations</h3>
                       </div>
                     )}
-                    <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                       {regularLocations.map(loc => (
                         <LocationCard key={loc.id} location={loc} onSelect={setSelectedLocation} onTap={handleTap} featured={loc.featured} />
                       ))}
@@ -522,7 +548,7 @@ export const KioskScreen: React.FC<KioskScreenProps> = ({
                         {filteredLocations.length} {activeCategory} {filteredLocations.length === 1 ? 'Location' : 'Locations'}
                       </h3>
                     </div>
-                    <div className="grid grid-cols-2 gap-4 xl:grid-cols-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
                       {filteredLocations.map(loc => (
                         <LocationCard key={loc.id} location={loc} onSelect={setSelectedLocation} onTap={handleTap} featured={loc.featured} />
                       ))}

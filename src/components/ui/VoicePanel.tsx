@@ -122,7 +122,7 @@ export const VoicePanel: React.FC<VoicePanelProps> = ({
 
       {/* Voice panel — fixed bottom-right */}
       <div className={cn(
-        'fixed bottom-6 right-6 z-40 w-96',
+        'fixed bottom-4 sm:bottom-6 right-4 sm:right-6 z-40 w-[calc(100vw-2rem)] max-w-[24rem] sm:w-96',
         'bg-slate-900/95 backdrop-blur-xl',
         'border-2 rounded-3xl shadow-2xl shadow-black/50',
         'transition-all duration-300',

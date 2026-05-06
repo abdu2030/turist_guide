@@ -7,6 +7,7 @@ interface CategorySidebarProps {
   activeCategory: Category;
   onSelect: (category: Category) => void;
   onTap: () => void;
+  className?: string;
 }
 
 const CATEGORIES: Category[] = ['All', 'Food', 'Attractions', 'Transport'];
@@ -15,6 +16,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   activeCategory,
   onSelect,
   onTap,
+  className,
 }) => {
   const countFor = (cat: Category) =>
     cat === 'All'
@@ -24,7 +26,8 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
   return (
     <aside className={cn(
       'w-64 flex flex-col gap-3 py-6 px-4 shrink-0 backdrop-blur-md',
-      'bg-slate-950/60 border-r border-white/8 text-white'
+      'bg-slate-950/95 border-r border-white/8 text-white overflow-y-auto z-30 scrollable',
+      className
     )}>
 
       {/* Section title */}
@@ -54,7 +57,7 @@ export const CategorySidebar: React.FC<CategorySidebarProps> = ({
             aria-label={`Filter by ${cat} — ${count} locations`}
             className={cn(
               // Base styles — kiosk-compliant minimum touch target
-              'group relative flex items-center gap-4 w-full px-4 rounded-2xl',
+              'group relative flex items-center gap-4 w-full px-4 rounded-2xl shrink-0',
               'min-h-[72px] text-left border-2 transition-all duration-200',
               'focus:outline-none focus-visible:ring-4 focus-visible:ring-blue-400/60',
               'active:scale-[0.97]',

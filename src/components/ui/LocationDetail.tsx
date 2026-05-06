@@ -180,7 +180,7 @@ export const LocationDetail: React.FC<LocationDetailProps> = ({
           </div>
 
           {/* Name */}
-          <h2 className="text-white font-black text-3xl leading-tight">
+          <h2 className="text-white font-black text-2xl md:text-3xl lg:text-4xl leading-tight">
             {location.name}
           </h2>
 
@@ -228,7 +228,7 @@ export const LocationDetail: React.FC<LocationDetailProps> = ({
 
             {/* Contact row */}
             {(location.phone || location.website) && (
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {location.phone && (
                   <div className={cn(
                     'flex items-start gap-3 p-4 rounded-2xl border',
@@ -283,7 +283,7 @@ export const LocationDetail: React.FC<LocationDetailProps> = ({
           </div>
 
           {/* Action buttons */}
-          <div className="flex gap-3 pt-2">
+          <div className="flex flex-col sm:flex-row gap-3 pt-2">
             <button
               onClick={handleReadAloud}
               className={cn(
